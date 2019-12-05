@@ -1,5 +1,8 @@
 # JANUS
---- Pyhon-based nanoparticle interface generator ---    
+--- Pyhon-based nanoparticle interface generator ---   
+
+Requirements: numpy, ase, scipy, sys, copy  
+
   
 This small code can be used to create a set of interface geometries between two nanoparticles given by two xyz-file . The code is based on the quick hull algorithm by Barber et al. [ACM Trans Math Softw  22, 469 (1996)] which allows for, among other things, rapid identification of convex hulls using a set of points as input, in the current case the coordinates of atoms in a nanoparticle model. The procedure to construct interfaces is as follows:  
 •	Facets are constructed by merging simplicies of the convex hull whose surface normal form an arcus cosine of 0.99 or larger.  This is done for each particle individually.  
