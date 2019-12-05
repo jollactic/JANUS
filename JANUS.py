@@ -7,7 +7,7 @@ from scipy.spatial import ConvexHull
 from ase.io import Trajectory, read, write
 
 
-def find_facets(atoms, facet=0, mirror=0, offset=[2.0, 0.0, 0.0], angle=0):
+def find_facets(atoms, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
     pos = atoms.get_positions()
     # FIND SURFACE
     Hull = ConvexHull(pos)
