@@ -12,4 +12,4 @@ This procedure leads to a total of 156 interface geometries for each particle pa
 To run the code type:  
 python3 JANUS.py particle_1.xyz particle_2.xyz offset_along_x offset_in_yz_plane  
   
-'particle_1.xyz' and 'particle_2.xyz' are two xyz-files.    
+where 'particle_1.xyz' and 'particle_2.xyz' are two xyz-files.    
