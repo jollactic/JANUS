@@ -8,7 +8,7 @@ import ase
 from ase.io import Trajectory, read, write
 
 
-def find_facets(atoms, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
+def find_facets(atoms, prec, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
     pos = atoms.get_positions()
     # FIND SURFACE
     Hull = ConvexHull(pos)
@@ -25,7 +25,7 @@ def find_facets(atoms, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
         j = -1
         for tmp2 in Hull.equations:
             j = j + 1
-            if(np.dot(tmp1[0:3], tmp2[0:3]) > 0.95 and np.dot(tmp1[0:3], tmp2[0:3]) < 1.05 and j >= i):
+            if(np.dot(tmp1[0:3], tmp2[0:3]) > prec and np.dot(tmp1[0:3], tmp2[0:3]) < 2.0-prec and j >= i):
                 if(facets_add[j] == 0):
                     facets_add[j] = 1
                     facets_matrix[i][j] = 1
@@ -101,16 +101,16 @@ def find_facets(atoms, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
     return atoms_out, nfacets, face_area
 
 
-def janus(atomsA, atomsB, rx, ryz):
-    traj = Trajectory('JANUS.traj', 'w')
+def janus(atomsA, atomsB, rx, ryz, prec=0.95, traj_name='JANUS.traj'):
+    traj = Trajectory(traj_name, 'w')
 
-    tmp, NA, AA = find_facets(atomsA)
-    tmp, NB, AB = find_facets(atomsB, mirror=1)
+    tmp, NA, AA = find_facets(atomsA, prec)
+    tmp, NB, AB = find_facets(atomsB, prec, mirror=1)
 
     # FIND LARGEST AREA OF PARTICLE A
     AArec = 0
     for i in range(NA):
-        atomsAout, tmp, AA = find_facets(atomsA, facet=i)
+        atomsAout, tmp, AA = find_facets(atomsA, prec, facet=i)
         if(AA > AArec):
             AArec = AA
             largest_AA = i
@@ -118,7 +118,7 @@ def janus(atomsA, atomsB, rx, ryz):
     # FIND LARGEST AREA OF PARTICLE B
     ABrec = 0
     for i in range(NB):
-        atomsBout, tmp, AB = find_facets(atomsB, facet=i)
+        atomsBout, tmp, AB = find_facets(atomsB, prec, facet=i)
         if(AB > ABrec):
             ABrec = AB
             largest_AB = i
@@ -137,8 +137,9 @@ def janus(atomsA, atomsB, rx, ryz):
         ang = i * 15
         off = [rx, 0., 0.]
         atomsAout, tmp, AA = find_facets(
-            atomsA, facet=largest_AA, angle=ang, offset=off)
-        atomsBout, tmp, AB = find_facets(atomsB, facet=largest_AB, mirror=1)
+            atomsA, prec, facet=largest_AA, angle=ang, offset=off)
+        atomsBout, tmp, AB = find_facets(
+            atomsB, prec, facet=largest_AB, mirror=1)
         atomsBout.extend(atomsAout)
         traj.write(atomsBout)
         for j in range(12):
@@ -156,9 +157,9 @@ def janus(atomsA, atomsB, rx, ryz):
                     np.pi /
                     180.)]
             atomsAout, tmp, AA = find_facets(
-                atomsA, facet=largest_AA, angle=ang, offset=off)
+                atomsA, prec, facet=largest_AA, angle=ang, offset=off)
             atomsBout, tmp, AB = find_facets(
-                atomsB, facet=largest_AB, mirror=1)
+                atomsB, prec, facet=largest_AB, mirror=1)
             atomsBout.extend(atomsAout)
             traj.write(atomsBout)
 
