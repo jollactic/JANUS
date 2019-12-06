@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import numpy as np
+import argparse
 import sys
 import copy
-import ase
 from scipy.spatial import ConvexHull
+import ase
 from ase.io import Trajectory, read, write
 
 
@@ -100,72 +101,82 @@ def find_facets(atoms, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
     return atoms_out, nfacets, face_area
 
 
-# MAIN
-traj = Trajectory('JANUS.traj', 'w')
+def janus(atomsA, atomsB, rx, ryz):
+    traj = Trajectory('JANUS.traj', 'w')
 
-struct = sys.argv[1]
-atomsA = read(struct)
+    tmp, NA, AA = find_facets(atomsA)
+    tmp, NB, AB = find_facets(atomsB, mirror=1)
 
-struct = sys.argv[2]
-atomsB = read(struct)
+    # FIND LARGEST AREA OF PARTICLE A
+    AArec = 0
+    for i in range(NA):
+        atomsAout, tmp, AA = find_facets(atomsA, facet=i)
+        if(AA > AArec):
+            AArec = AA
+            largest_AA = i
 
-rx = float(sys.argv[3])  # SEPARATION OF PARTICLES ALONG X
-ryz = float(sys.argv[4])  # MAGNITUDE OF DISPLACMET IN THE YZ-PLANE
+    # FIND LARGEST AREA OF PARTICLE B
+    ABrec = 0
+    for i in range(NB):
+        atomsBout, tmp, AB = find_facets(atomsB, facet=i)
+        if(AB > ABrec):
+            ABrec = AB
+            largest_AB = i
 
-tmp, NA, AA = find_facets(atomsA)
-tmp, NB, AB = find_facets(atomsB, mirror=1)
+    print(
+        "--- Area " +
+        str(largest_AA) +
+        " : " +
+        str(AA) +
+        " --- Area " +
+        str(largest_AB) +
+        " : " +
+        str(AB))
 
-# FIND LARGEST AREA OF PARTICLE A
-AArec = 0
-for i in range(NA):
-    atomsAout, tmp, AA = find_facets(atomsA, facet=i)
-    if(AA > AArec):
-        AArec = AA
-        largest_AA = i
-
-# FIND LARGEST AREA OF PARTICLE B
-ABrec = 0
-for i in range(NB):
-    atomsBout, tmp, AB = find_facets(atomsB, facet=i)
-    if(AB > ABrec):
-        ABrec = AB
-        largest_AB = i
-
-print(
-    "--- Area " +
-    str(largest_AA) +
-    " : " +
-    str(AA) +
-    " --- Area " +
-    str(largest_AB) +
-    " : " +
-    str(AB))
-
-
-for i in range(12):
-    ang = i * 15
-    off = [rx, 0., 0.]
-    atomsAout, tmp, AA = find_facets(
-        atomsA, facet=largest_AA, angle=ang, offset=off)
-    atomsBout, tmp, AB = find_facets(atomsB, facet=largest_AB, mirror=1)
-    atomsBout.extend(atomsAout)
-    traj.write(atomsBout)
-    for j in range(12):
-        ang_disp = j * 30
-        off = [
-            rx,
-            ryz *
-            np.cos(
-                ang_disp *
-                np.pi /
-                180.),
-            ryz *
-            np.sin(
-                ang_disp *
-                np.pi /
-                180.)]
+    for i in range(12):
+        ang = i * 15
+        off = [rx, 0., 0.]
         atomsAout, tmp, AA = find_facets(
             atomsA, facet=largest_AA, angle=ang, offset=off)
         atomsBout, tmp, AB = find_facets(atomsB, facet=largest_AB, mirror=1)
         atomsBout.extend(atomsAout)
         traj.write(atomsBout)
+        for j in range(12):
+            ang_disp = j * 30
+            off = [
+                rx,
+                ryz *
+                np.cos(
+                    ang_disp *
+                    np.pi /
+                    180.),
+                ryz *
+                np.sin(
+                    ang_disp *
+                    np.pi /
+                    180.)]
+            atomsAout, tmp, AA = find_facets(
+                atomsA, facet=largest_AA, angle=ang, offset=off)
+            atomsBout, tmp, AB = find_facets(
+                atomsB, facet=largest_AB, mirror=1)
+            atomsBout.extend(atomsAout)
+            traj.write(atomsBout)
+
+
+# MAIN
+def main():
+
+    struct = sys.argv[1]
+    atomsA = read(struct)
+
+    struct = sys.argv[2]
+    atomsB = read(struct)
+
+    rx = float(sys.argv[3])  # SEPARATION OF PARTICLES ALONG X
+    ryz = float(sys.argv[4])  # MAGNITUDE OF DISPLACMET IN THE YZ-PLANE
+
+    janus(atomsA, atomsB, rx, ryz)
+
+
+if __name__ == '__main__':
+    main()
