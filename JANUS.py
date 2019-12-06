@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import numpy as np
-import argparse
 import sys
 import copy
 from scipy.spatial import ConvexHull
-import ase
 from ase.io import Trajectory, read, write
 
 
