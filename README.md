@@ -17,3 +17,5 @@ To run the code type the following command in the terminal:
 python3 JANUS.py particle_1.xyz particle_2.xyz offset_along_x offset_in_yz_plane  
     
 where 'particle_1.xyz' and 'particle_2.xyz' are two user supplied xyz-files, and 'offset_along_x' and 'offset_in_yz_plane' are to floating numbers controlling the mutual displacements (in Ångströms) of the two particles as described in bullet points above.
+
+The project was developed with support from STINT internationalises Swedish higher education and research.
