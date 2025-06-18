@@ -5,7 +5,6 @@ import copy
 from scipy.spatial import ConvexHull
 from ase.io import Trajectory, read, write
 
-
 def find_facets(atoms, prec, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0):
     pos = atoms.get_positions()
     # FIND SURFACE
@@ -45,6 +44,7 @@ def find_facets(atoms, prec, facet=0, mirror=0, offset=[0.0, 0.0, 0.0], angle=0)
 
     # /MERGE FACETS
 
+    
     # ALIGN NORMAL TO X
     a = normals[facet]
     if(abs(np.dot(a, [1, 0, 0])) < 0.95):
